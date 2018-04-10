@@ -57,10 +57,27 @@ def plotsellflags(func):
     plt.ylabel("Periods")
     plt.show()
 
-if __name__ == "__main__":
-    print(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.5, am=False, n=100)["value"])
-    print(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.5, am=True, n=100)["value"])
-    plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
+def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
+    h = t / n
+    for v in var:
+        u = math.exp((rf - 0.5 * math.pow(v, 2)) * h + v * math.sqrt(h))
+        d = math.exp((rf - 0.5 * math.pow(v, 2)) * h - v * math.sqrt(h))
+        sellflag = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n)["sellflag"]
+        if highest == True:
+            boundry = sellflag.argmax(axis=1)
+        else:
+            boundry = np.flip(sellflag,axis=1).argmax(axis=1)
+        boundry = s*(u**boundry)*(d**(n-boundry))
+        plt.plot(boundry)
+    plt.show()
 
+
+if __name__ == "__main__":
+    #print(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.0, am=False, n=100)["value"])
+    #print(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.5, am=True, n=100)["value"])
+    #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
+    #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.5, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
+    #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.7, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
+    plotexerciseboundry([0.1,0.3,0.5],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
     print("Done")
 
