@@ -19,8 +19,8 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100):
 
     # Basic calculations
     h = t / n
-    u = math.exp(((rf-div) - 0.5 * math.pow(v, 2)) * h + v * math.sqrt(h))
-    d = math.exp(((rf-div) - 0.5 * math.pow(v, 2)) * h - v * math.sqrt(h))
+    u = math.exp((rf-div)*h +v * math.sqrt(h))
+    d = math.exp((rf-div)*h-v * math.sqrt(h))
     drift = math.exp((rf) * h)
     stkdrift = math.exp((rf-div)*h)
     q = (stkdrift - d) / (u - d)
@@ -40,6 +40,9 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100):
 
     # Backward recursion for option price
     for j in range(n + 1):
+        if am:
+            if optval[n, j] < cp * (stkval[n, j] - k):
+                sellflag[i, j] = 1
         optval[n, j] = max(0, cp * (stkval[n, j] - k))
     for i in range(n - 1, -1, -1):
         for j in range(i + 1):
@@ -61,8 +64,8 @@ def plotsellflags(func):
 def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
     h = t / n
     for v in var:
-        u = math.exp(((rf - div) - 0.5 * math.pow(v, 2)) * h + v * math.sqrt(h))
-        d = math.exp(((rf - div) - 0.5 * math.pow(v, 2)) * h - v * math.sqrt(h))
+        u = math.exp((rf - div) * h + v * math.sqrt(h))
+        d = math.exp((rf - div) * h - v * math.sqrt(h))
         sellflag = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n)["sellflag"]
         if highest == True:
             boundry = sellflag.argmax(axis=1)
@@ -76,9 +79,14 @@ def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
 if __name__ == "__main__":
     #print(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.0, am=False, n=100)["value"])
     #print(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.5, am=True, n=100)["value"])
-    #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.3, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
+    #plotsellflags(jarrow_rudd(41.0, 40.0, 1.0, 0.3, 0.08, -1, div=0.00, am=True, n=3)["sellflag"])
+    #plotsellflags(jarrow_rudd(41.0, 40.0, 1.0, 0.3, 0.08, 1, div=0.00, am=True, n=3)["sellflag"])
+    #plotsellflags(jarrow_rudd(41.0, 40.0, 2.0, 0.3, 0.08, 1, div=0.00, am=True, n=2)["sellflag"])
+    #plotsellflags(jarrow_rudd(110.0, 100.0, 1.0, 0.3, 0.05, 1, div=0.035, am=True, n=3)["sellflag"])
+    plotsellflags(jarrow_rudd(1.05, 1.10, 0.5, 0.1, 0.055, -1, div=0.031, am=True, n=3)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.5, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.7, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
-    plotexerciseboundry([0.5],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
+    #plotexerciseboundry([0.5],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
     print("Done")
 
+""" s, k, t, v, rf, cp, div=0.0, am=False, n=100  """
