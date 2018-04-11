@@ -70,9 +70,12 @@ def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
         if highest == True:
             boundry = sellflag.argmax(axis=1)
         else:
-            boundry = np.flip(sellflag,axis=1).argmax(axis=1)
-        boundry = s*(u**boundry)*(d**(n-boundry))
-        plt.plot(boundry)
+            boundry = 500-np.flip(sellflag,axis=1).argmax(axis=1)
+            boundry[boundry>=n]=0
+        boundryprice = []
+        for i in range(len(boundry)):
+            boundryprice.append(s*u**(i-boundry[i])*d**(boundry[i]))
+        plt.plot(boundryprice)
     plt.show()
 
 
@@ -83,10 +86,10 @@ if __name__ == "__main__":
     #plotsellflags(jarrow_rudd(41.0, 40.0, 1.0, 0.3, 0.08, 1, div=0.00, am=True, n=3)["sellflag"])
     #plotsellflags(jarrow_rudd(41.0, 40.0, 2.0, 0.3, 0.08, 1, div=0.00, am=True, n=2)["sellflag"])
     #plotsellflags(jarrow_rudd(110.0, 100.0, 1.0, 0.3, 0.05, 1, div=0.035, am=True, n=3)["sellflag"])
-    plotsellflags(jarrow_rudd(1.05, 1.10, 0.5, 0.1, 0.055, -1, div=0.031, am=True, n=3)["sellflag"])
+    #plotsellflags(jarrow_rudd(1.05, 1.10, 0.5, 0.1, 0.055, -1, div=0.031, am=True, n=3)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.5, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.7, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
-    #plotexerciseboundry([0.5],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
+    plotexerciseboundry([0.5,0.3,0.1],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
     print("Done")
 
 """ s, k, t, v, rf, cp, div=0.0, am=False, n=100  """
