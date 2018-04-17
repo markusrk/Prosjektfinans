@@ -46,6 +46,11 @@ for i in range(50,100):
     print(up[i]*down[i+1])
     print(down[i]*up[i+1])
 
+plt.plot(up)
+plt.plot(down)
+plt.show()
+
+
 """
 plt.plot(vol)
 plt.show()

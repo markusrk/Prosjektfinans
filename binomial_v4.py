@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 
 
-def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100):
+def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,volvol=0.,):
     """ Price an option using the Jarrow-Rudd binomial model
 
     s :  initial stock price
@@ -24,6 +24,8 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100):
     drift = math.exp((rf) * h)
     stkdrift = math.exp((rf-div)*h)
     q = (stkdrift - d) / (u - d)
+
+
 
     # Process the terminal stock price and dividend amounts
     stkval = np.zeros((n + 1, n + 1))
@@ -62,11 +64,14 @@ def plotsellflags(func):
     plt.show()
 
 def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
+    """ Finds and plots the highest/lowest value at which the option will be excercised"""
+
     h = t / n
     for v in var:
         u = math.exp((rf - div) * h + v * math.sqrt(h))
         d = math.exp((rf - div) * h - v * math.sqrt(h))
         sellflag = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n)["sellflag"]
+
         if highest == True:
             boundry = sellflag.argmax(axis=1)
         else:
@@ -89,7 +94,12 @@ if __name__ == "__main__":
     #plotsellflags(jarrow_rudd(1.05, 1.10, 0.5, 0.1, 0.055, -1, div=0.031, am=True, n=3)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.5, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.7, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
-    plotexerciseboundry([0.5,0.3,0.1],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
+
+    #plotsellflags(jarrow_rudd(100.0, 100.0, 5.0, 0.5, 0.05, 1, div=0.05, am=True, n=500)["sellflag"])
+    #plotsellflags(jarrow_rudd(100.0, 100.0, 5.0, 0.5, 0.05, -1, div=0.05, am=True, n=500)["sellflag"])
+    #plotexerciseboundry([0.5,0.3,0.1],True,100.0, 100.0, 5.0, 0.05, -1, div=0.02, am=True, n=500)
+    plotexerciseboundry([0.5, 0.3, 0.1], True, 100.0, 100.0, 5.0, 0.05, -1, div=0.05, am=True, n=500)
+    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
     print("Done")
 
 """ s, k, t, v, rf, cp, div=0.0, am=False, n=100  """
