@@ -105,8 +105,27 @@ if __name__ == "__main__":
     #plotsellflags(jarrow_rudd(100.0, 100.0, 5.0, 0.5, 0.05, 1, div=0.05, am=True, n=500)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 5.0, 0.5, 0.05, -1, div=0.05, am=True, n=500)["sellflag"])
     #plotexerciseboundry([0.5,0.3,0.1],True,100.0, 100.0, 5.0, 0.05, -1, div=0.02, am=True, n=500)
-    plotexerciseboundry([0.5, 0.3, 0.1], True, 100.0, 100.0, 5.0, 0.05, -1, div=0.05, am=True, n=500)
-    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
-    print("Done")
 
-""" s, k, t, v, rf, cp, div=0.0, am=False, n=100  """
+    """Answers for problem 2a"""
+    #plotexerciseboundry([0.5, 0.3, 0.1], True, 100.0, 100.0, 5.0, 0.05, -1, div=0.05, am=True, n=500)
+    #plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
+
+
+    """Answers for problem 2b"""
+    print(jarrow_rudd(s=100.0, k=150.0, t=1.0, v=0.0000001, rf=0.05, cp=1, div=0.05, am=True, n=100,x=1.5,b=0)["value"])
+
+
+""" s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0):
+
+    s :  initial stock price
+    k : strike price
+    t : expiration time
+    v :  volatility
+    rf : risk-free rate
+    cp : +1/-1 for call /put
+    div : Dividend amount annual percentage
+    am : True/False for American/European
+    n : binomial steps
+    x : Multiplier for payoff
+    b : constant payoff bonus
+"""
