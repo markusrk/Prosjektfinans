@@ -67,6 +67,11 @@ def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
     """ Finds and plots the highest/lowest value at which the option will be excercised"""
 
     h = t / n
+
+    # changes time and periods to allow for nice print
+    t = t+1
+    dn = round(n*t/(t-1))-n
+    n += dn
     for v in var:
         u = math.exp((rf - div) * h + v * math.sqrt(h))
         d = math.exp((rf - div) * h - v * math.sqrt(h))
@@ -75,12 +80,12 @@ def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
         if highest == True:
             boundry = sellflag.argmax(axis=1)
         else:
-            boundry = 500-np.flip(sellflag,axis=1).argmax(axis=1)
+            boundry = n-np.flip(sellflag,axis=1).argmax(axis=1)
             boundry[boundry>=n]=0
         boundryprice = []
         for i in range(len(boundry)):
             boundryprice.append(s*u**(i-boundry[i])*d**(boundry[i]))
-        plt.plot(boundryprice)
+        plt.plot(np.linspace(0,t,num=n-dn),boundryprice[dn+1:])
     plt.show()
 
 
