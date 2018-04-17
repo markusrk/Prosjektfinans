@@ -36,19 +36,25 @@ def normalize(vol, hstep, time):
     hstep *= c
     return vol, hstep
 
-vol = heston(rand)
-hstep = calc_hstep(vol)
-vol,hstep = normalize(vol,hstep,t)
-up = np.exp(vol*np.sqrt(hstep))
-down = np.exp(-vol*np.sqrt(hstep))
+def gen_hest_vol():
+    vol = heston(rand)
+    hstep = calc_hstep(vol)
+    return normalize(vol,hstep,t)
 
-for i in range(50,100):
-    print(up[i]*down[i+1])
-    print(down[i]*up[i+1])
+if __name__ == "__main__":
+    vol = heston(rand)
+    hstep = calc_hstep(vol)
+    vol,hstep = normalize(vol,hstep,t)
+    up = np.exp(vol*np.sqrt(hstep))
+    down = np.exp(-vol*np.sqrt(hstep))
 
-plt.plot(up)
-plt.plot(down)
-plt.show()
+    for i in range(50,100):
+        print(up[i]*down[i+1])
+        print(down[i]*up[i+1])
+
+    plt.plot(up)
+    plt.plot(down)
+    plt.show()
 
 
 """
