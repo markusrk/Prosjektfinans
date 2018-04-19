@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from testing import gen_hest_vol
 
-def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0):
+def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0,adjust_step=False):
     """ Price an option using the Jarrow-Rudd binomial model
 
     Parameters
@@ -27,7 +27,8 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol
   """
 
     # Basic calculations
-    vol, h = gen_hest_vol(n,t,v,kv,volvol)
+    vol, h = gen_hest_vol(n,t,v,kv,volvol,norm=False,adjust_step=adjust_step)
+    n = len(h)
     u = np.exp((rf-div)*h +vol * np.sqrt(h))
     d = np.exp((rf-div)*h-vol * np.sqrt(h))
     drift = np.exp((rf) * h)
@@ -80,7 +81,7 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol
 
 
 
-def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0):
+def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0,adjust_step=False):
     """ Finds and plots the highest/lowest value at which the option will be excercised"""
 
     h = t / n
@@ -94,8 +95,8 @@ def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100,x
     # Calculates the up and down movements, pulls the highest/lowest
     # value for excercise (depending on whether we have a call or a put)
     for v in var:
-        boundryprice = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n,x=x,b=b,kv=kv,volvol=volvol)["boundryprice"]
-        plt.plot(np.linspace(0,t-1,num=n-dn), boundryprice[dn+1:])
+        boundryprice = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n,x=x,b=b,kv=kv,volvol=volvol,adjust_step=adjust_step)["boundryprice"]
+        plt.plot(np.linspace(0,t-1,num=len(boundryprice)-dn-1), boundryprice[dn+1:])
     plt.show()
 
 
@@ -125,12 +126,18 @@ if __name__ == "__main__":
     #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200)["value"])
 
     """Answer for question 3a"""
-    plotexerciseboundry([0.5, 0.3, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2)
-    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2)
+    #plotexerciseboundry([0.5, 0.3, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
+    #plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
     print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07,
-                                           am=True, n=500,x=1.5,b=-200,volvol=2,kv=0.2)["value"])
-
-
+                                           am=True, n=500,x=1.5,b=-200,volvol=2,kv=0.2,adjust_step=True)["value"])
+    r = 0
+    n = 20
+    res = np.zeros(n)
+    for x in range(n):
+        res[x] = jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07,
+                            am=True, n=500,x=1.5,b=-200,volvol=0.2,kv=0.2,adjust_step=True)["value"]
+    print("avg. value: ",sum(res)/len(res))
+    print("st.dev: ", np.std(res))
 
 
 """ s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0):
