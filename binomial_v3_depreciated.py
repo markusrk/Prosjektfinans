@@ -86,7 +86,7 @@ if __name__ == "__main__":
     #plotsellflags(jarrow_rudd(41.0, 40.0, 1.0, 0.3, 0.08, 1, div=0.00, am=True, n=3)["sellflag"])
     #plotsellflags(jarrow_rudd(41.0, 40.0, 2.0, 0.3, 0.08, 1, div=0.00, am=True, n=2)["sellflag"])
     #plotsellflags(jarrow_rudd(110.0, 100.0, 1.0, 0.3, 0.05, 1, div=0.035, am=True, n=3)["sellflag"])
-    #plotsellflags(jarrow_rudd(1.05, 1.10, 0.5, 0.1, 0.055, -1, div=0.031, am=True, n=3)["sellflag"])
+    plotsellflags(jarrow_rudd(1.05, 1.10, 0.5, 0.1, 0.055, -1, div=0.031, am=True, n=3)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.5, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
     #plotsellflags(jarrow_rudd(100.0, 100.0, 1.0, 0.7, 0.03, 1, div=0.04, am=True, n=100)["sellflag"])
     plotexerciseboundry([0.5,0.3,0.1],False,100.0, 100.0, 5.0, 0.05, 1, div=0.05, am=True, n=500)
