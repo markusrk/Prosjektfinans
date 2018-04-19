@@ -1,37 +1,30 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from testing import gen_hest_vol
 
-def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0):
+
+def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,volvol=0):
     """ Price an option using the Jarrow-Rudd binomial model
 
-    Parameters
-        s :  initial stock price
-        k : strike price
-        t : expiration time
-        v :  volatility
-        rf : risk-free rate
-        cp : +1/-1 for call /put
-        div : Dividend amount annual percentage
-        am : True/False for American/European
-        n : binomial steps
-        x : Multiplier for payoff
-        b : constant payoff bonus
-        kv : dampening constant for volatility function
-        volvol : volatility of the volatility
-
-    Returns
-        value : the value of the option at starting time
-        sellflag : 2d array showing which states the option should be excercised in
+    s :  initial stock price
+    k : strike price
+    t : expiration time
+    v :  volatility
+    rf : risk-free rate
+    cp : +1/-1 for call /put
+    div : Dividend amount annual percentage
+    am : True/False for American/European
+    n : binomial steps
+    x : Multiplier for payoff
+    b : constant payoff bonus
   """
 
     # Basic calculations
-    vol, h = gen_hest_vol(n,t,v,kv,volvol)
-    u = np.exp((rf-div)*h +vol * np.sqrt(h))
-    d = np.exp((rf-div)*h-vol * np.sqrt(h))
-    drift = np.exp((rf) * h)
-    stkdrift = np.exp((rf-div)*h)
+    h = t / n
+    u = math.exp((rf-div)*h +v * math.sqrt(h))
+    d = math.exp((rf-div)*h-v * math.sqrt(h))
+    drift = math.exp((rf) * h)
+    stkdrift = math.exp((rf-div)*h)
     q = (stkdrift - d) / (u - d)
 
 
@@ -43,14 +36,13 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol
     dividend = np.zeros((n + 1, n + 1))
     stkval[0, 0] = s
     for i in range(1, n + 1):
-        stkval[i, 0] = stkval[i - 1, 0] * u[i-1]
+        stkval[i, 0] = stkval[i - 1, 0] * u
         for j in range(1, i + 1):
-            stkval[i, j] = stkval[i - 1, j - 1] * d[i-1]
+            stkval[i, j] = stkval[i - 1, j - 1] * d
 
 
 
     # Backward recursion for option price
-    # The first for loop sets the option value in the final row, the second for loop fills the rest of the table
     for j in range(n + 1):
         if am:
             if optval[n, j] < cp * (stkval[n, j]*x+b - k):
@@ -58,44 +50,44 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol
         optval[n, j] = max(0, cp * (stkval[n, j]*x+b - k))
     for i in range(n - 1, -1, -1):
         for j in range(i + 1):
-            optval[i, j] = (q[i] * optval[i + 1, j] + (1 - q[i]) * optval[i + 1, j + 1]) / drift[i]
+            optval[i, j] = (q * optval[i + 1, j] + (1 - q) * optval[i + 1, j + 1]) / drift
             if am:
                 if optval[i, j] < cp * (stkval[i, j]*x+b - k):
                     sellflag[i, j] = 1
                 optval[i, j] = max(optval[i, j], cp * (stkval[i, j]*x+b - k))
 
-
-    # Calculating excercise price
-    if cp==-1:
-        boundry = sellflag.argmax(axis=1)
-    else:
-        boundry = n - np.flip(sellflag, axis=1).argmax(axis=1)
-        boundry[boundry >= n] = 0
-    boundryprice = []
-    for i in range(len(boundry)):
-        boundryprice.append(s * u[1] ** (i - boundry[i]) * d[1] ** (boundry[i]))
-
-    return {"value": optval[0, 0], "sellflag": sellflag, "boundryprice": boundryprice, "h": h}
+    return {"value": optval[0, 0], "sellflag": sellflag}
 
 
+def plotsellflags(func):
+    plt.matshow(func)
+    plt.xlabel("Downs")
+    plt.ylabel("Periods")
+    plt.show()
 
-
-def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0):
+def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100):
     """ Finds and plots the highest/lowest value at which the option will be excercised"""
 
     h = t / n
 
-    # Changes time and periods to allow the tree to
-    # expand before the plotting period so we are sure the excercise points are available
+    # changes time and periods to allow for nice print
     t = t+1.5
     dn = round(n*t/(t-1.5))-n
     n += dn
-
-    # Calculates the up and down movements, pulls the highest/lowest
-    # value for excercise (depending on whether we have a call or a put)
     for v in var:
-        boundryprice = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n,x=x,b=b,kv=kv,volvol=volvol)["boundryprice"]
-        plt.plot(np.linspace(0,t-1,num=n-dn), boundryprice[dn+1:])
+        u = math.exp((rf - div) * h + v * math.sqrt(h))
+        d = math.exp((rf - div) * h - v * math.sqrt(h))
+        sellflag = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n)["sellflag"]
+
+        if highest == True:
+            boundry = sellflag.argmax(axis=1)
+        else:
+            boundry = n-np.flip(sellflag,axis=1).argmax(axis=1)
+            boundry[boundry>=n]=0
+        boundryprice = []
+        for i in range(len(boundry)):
+            boundryprice.append(s*u**(i-boundry[i])*d**(boundry[i]))
+        plt.plot(np.linspace(0,t-1,num=n-dn),boundryprice[dn+1:])
     plt.show()
 
 
@@ -117,20 +109,12 @@ if __name__ == "__main__":
     #plotexerciseboundry([0.5,0.3,0.1],True,100.0, 100.0, 5.0, 0.05, -1, div=0.02, am=True, n=500)
 
     """Answers for problem 2a"""
-    #plotexerciseboundry([0.5, 0.3, 0.1], True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500)
-    #plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500)
+    plotexerciseboundry([0.5, 0.3, 0.1], True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=1000)
+    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=1000)
 
 
     """Answers for problem 2b"""
     #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200)["value"])
-
-    """Answer for question 3a"""
-    plotexerciseboundry([0.5, 0.3, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2)
-    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2)
-    print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07,
-                                           am=True, n=500,x=1.5,b=-200,volvol=2,kv=0.2)["value"])
-
-
 
 
 """ s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0):
