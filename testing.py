@@ -15,6 +15,7 @@ def heston(rand):
     vol[0] = v
     for i in range(1, len(vol)):
         vol[i] = vol[i - 1] + k * (v - vol[i - 1]) * h + volvol * math.sqrt(vol[i - 1]) * rand[i] * h
+        if vol[i] < 0: vol[i] = 0
     return vol
 
 

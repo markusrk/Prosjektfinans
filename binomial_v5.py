@@ -96,7 +96,8 @@ def plotexerciseboundry(var, highest,s, k, t, rf, cp, div=0.0, am=False, n=100,x
     # value for excercise (depending on whether we have a call or a put)
     for v in var:
         boundryprice = jarrow_rudd(s, k, t, v, rf, cp, div=div, am=am, n=n,x=x,b=b,kv=kv,volvol=volvol,adjust_step=adjust_step)["boundryprice"]
-        plt.plot(np.linspace(0,t-1,num=len(boundryprice)-dn-1), boundryprice[dn+1:])
+        plt.plot(np.linspace(0,t-1,num=len(boundryprice)-dn-1), boundryprice[dn+1:], label="var= "+str(v))
+    plt.legend()
     plt.show()
 
 
@@ -126,10 +127,9 @@ if __name__ == "__main__":
     #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200)["value"])
 
     """Answer for question 3a"""
-    #plotexerciseboundry([0.5, 0.3, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
-    #plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
-    print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07,
-                                           am=True, n=500,x=1.5,b=-200,volvol=2,kv=0.2,adjust_step=True)["value"])
+    plotexerciseboundry([0.5, 0.3, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
+    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
+    #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200,volvol=2,kv=0.2,adjust_step=True)["value"])
     r = 0
     n = 20
     res = np.zeros(n)
