@@ -10,18 +10,8 @@ volvol = None
 k = None
 
 
-def heston(rand):
-    vol = np.zeros(len(rand))
-    vol[0] = v
-    for i in range(1, len(vol)):
-        vol[i] = vol[i - 1] + k * (v - vol[i - 1]) * h + volvol * math.sqrt(vol[i - 1]) * rand[i] * h
-        if vol[i] <= 0.0:
-            print("volatility dropped to zero at step",i)
-            print(vol)
-            raise Exception
-    return vol
-
 def heston_v2(rand):
+    """generates volatility vector from a string of random numbers (preferably normally distributed"""
     vol = np.zeros(len(rand))
     vol[0] = v
     for i in range(1, len(vol)):
@@ -40,6 +30,7 @@ def heston_v2(rand):
 
 
 def calc_hstep(vol):
+    """returns a vector of time steps that solves the UD=DU equation for a volatility string"""
     hstep = np.zeros(len(vol))
     hstep[0] = h
     for i in range(1,len(vol)):
@@ -47,14 +38,25 @@ def calc_hstep(vol):
     return hstep
 
 def normalize(vol, hstep, time):
+    """Normalizes a time vector to fit the given time period"""
     c_time = sum(hstep)
     c = time/c_time
     hstep *= c
     return vol, hstep
 
 def gen_hest_vol(nt,tt,vt,kt,volvolt,norm=True,adjust_step=False):
+    """Generates volatility and time step vectors
+
+    nt : time steps
+    tt : time period in years
+    kt : kappa in the heston equation
+    volvol : volatility of the volatility
+    norm : normalizes the timevector to fit if True
+    adjust_step : add/removes step to fit time period if true
+
+    """
     # Locking random seed to provide stability during development
-    np.random.seed(42)
+    # np.random.seed(42)
 
     # Set global variables to input
     global n
@@ -71,11 +73,13 @@ def gen_hest_vol(nt,tt,vt,kt,volvolt,norm=True,adjust_step=False):
     volvol = volvolt
 
     if adjust_step:
+        # Calculates volatility and timestep vectors, is delibarately made too long
         rand = np.random.normal(loc=0, scale=1., size=(round(n*5)))
         vol = heston_v2(rand)
         hstep = calc_hstep(vol)
         i = 0
         ts = 0
+        # Finds number of periods to include
         while True:
             if ts < t:
                 ts += hstep[i]
@@ -87,44 +91,10 @@ def gen_hest_vol(nt,tt,vt,kt,volvolt,norm=True,adjust_step=False):
                 continue
             break
         return vol[:i],hstep[:i]
+    # Calculates vectors and nomalizes length before return
     rand = np.random.normal(loc=0, scale=1., size=(n))
     vol = heston_v2(rand)
     hstep = calc_hstep(vol)
     if norm:
         return normalize(vol,hstep,t)
     return vol, hstep
-
-if __name__ == "__main__":
-    #np.random.seed(42)
-
-
-    # delete later on
-    n = 100
-    t = 1
-    h = t / n
-    v = 0.25
-    k = 0.2
-    volvol= 2
-
-#        vol,h = gen_hest_vol(n,t,v,k,volvol,norm=False,adjust_step=False)
-
-    """
-    d = np.zeros(len(h))
-    d[0]= h[0]
-    for i in range(1,len(d)):
-        d[i] = d[i-1] + h[i]
-
-    plt.figure(0)
-    plt.plot(vol)
-    plt.figure(1)
-    plt.plot(d,vol)
-    plt.show()
-"""
-
-"""
-plt.plot(vol)
-plt.show()
-
-plt.plot(hstep)
-plt.show()
-"""
