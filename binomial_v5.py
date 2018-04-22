@@ -27,7 +27,7 @@ def jarrow_rudd(s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol
   """
 
     # Basic calculations
-    vol, h = gen_hest_vol(n,t,v,kv,volvol,norm=False,adjust_step=adjust_step)
+    vol, h = gen_hest_vol(n,t,v,kv,volvol,norm=True,adjust_step=adjust_step)
     n = len(h)
     u = np.exp((rf-div)*h +vol * np.sqrt(h))
     d = np.exp((rf-div)*h-vol * np.sqrt(h))
@@ -119,38 +119,25 @@ if __name__ == "__main__":
     #plotexerciseboundry([0.5,0.3,0.1],True,100.0, 100.0, 5.0, 0.05, -1, div=0.02, am=True, n=500)
 
     """Answers for problem 2a"""
-    #plotexerciseboundry([0.5, 0.3, 0.1], True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500)
-    #plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500)
+    #plotexerciseboundry([0.5, 0.25, 0.1], True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500)
+    #plotexerciseboundry([0.5, 0.25, 0.1], False, 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500)
 
 
     """Answers for problem 2b"""
     #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200)["value"])
+    #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200)["value"])
 
     """Answer for question 3a"""
-    plotexerciseboundry([0.5, 0.3, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
-    plotexerciseboundry([0.5, 0.3, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
-    #print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200,volvol=2,kv=0.2,adjust_step=True)["value"])
+    plotexerciseboundry([0.5, 0.25, 0.1],  True, 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
+    plotexerciseboundry([0.5, 0.25, 0.1], False, 100.0, 100.0, 5.0, 0.02,  1, div=0.07, am=True, n=500, x=1, b=0,volvol=0.8, kv=0.2,adjust_step=True)
+    print("Value of option: ", jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500,x=1.5,b=-200,volvol=0.8,kv=0.2,adjust_step=True)["value"])
     r = 0
     n = 20
     res = np.zeros(n)
     for x in range(n):
         res[x] = jarrow_rudd(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07,
-                            am=True, n=500,x=1.5,b=-200,volvol=0.2,kv=0.2,adjust_step=True)["value"]
+                            am=True, n=500,x=1.5,b=-200,volvol=0.8,kv=0.2,adjust_step=False)["value"]
     print("avg. value: ",sum(res)/len(res))
     print("st.dev: ", np.std(res))
 
 
-""" s, k, t, v, rf, cp, div=0.0, am=False, n=100,x=1,b=0):
-
-    s :  initial stock price
-    k : strike price
-    t : expiration time
-    v :  volatility
-    rf : risk-free rate
-    cp : +1/-1 for call /put
-    div : Dividend amount annual percentage
-    am : True/False for American/European
-    n : binomial steps
-    x : Multiplier for payoff
-    b : constant payoff bonus
-"""
