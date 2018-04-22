@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
 n = None
 t = None
@@ -11,7 +10,7 @@ k = None
 
 
 def heston_v2(rand):
-    """generates volatility vector from a string of random numbers (preferably normally distributed"""
+    """Generates volatility vector from a string of random numbers (preferably normally distributed"""
     vol = np.zeros(len(rand))
     vol[0] = v
     for i in range(1, len(vol)):
@@ -30,7 +29,7 @@ def heston_v2(rand):
 
 
 def calc_hstep(vol):
-    """returns a vector of time steps that solves the UD=DU equation for a volatility string"""
+    """Returns a vector of time steps that solves the UD=DU equation for a volatility string"""
     hstep = np.zeros(len(vol))
     hstep[0] = h
     for i in range(1,len(vol)):

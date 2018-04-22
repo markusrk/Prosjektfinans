@@ -23,6 +23,8 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvo
     Returns
         value : the value of the option at starting time
         sellflag : 2d array showing which states the option should be excercised in
+        boundryprice : boundryprice to sell the option
+        h : time step vector
   """
 
     # Calculate variables for later use
@@ -85,8 +87,6 @@ def plotexerciseboundry(var,s, k, t, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv
     Variables
         Sames as binomial, the list "var" replaces a single volatility float.
     """
-
-    h = t / n
 
     # Changes time and periods to allow the tree to
     # expand before the plotting period so we are sure the exercise points are available
