@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from timeVar import gen_hest_var
 
-def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varvar=0, adjust_step=False):
+def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvol=0, adjust_step=False):
     """ Calculates the price of an option using the binomial model
 
     Parameters
@@ -18,7 +18,7 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varva
         x : Multiplier for payoff
         b : constant payoff bonus
         kv : dampening constant for volatility function
-        varvar : variance of the variance
+        volvol : volatility of the volatility
 
     Returns
         value : the value of the option at starting time
@@ -28,10 +28,10 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varva
   """
 
     # Calculate variables for later use
-    var, h = gen_hest_var(n, t, v, kv, varvar, norm=True, adjust_step=adjust_step)
+    vol, h = gen_hest_var(n, t, v, kv, volvol, norm=True, adjust_step=adjust_step)
     n = len(h)
-    u = np.exp((rf-div)*h +var * np.sqrt(h))
-    d = np.exp((rf-div)*h-var * np.sqrt(h))
+    u = np.exp((rf-div)*h +vol * np.sqrt(h))
+    d = np.exp((rf-div)*h-vol * np.sqrt(h))
     drift = np.exp((rf) * h)
     stkdrift = np.exp((rf-div)*h)
     q = (stkdrift - d) / (u - d)
@@ -82,22 +82,22 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varva
 
 
 
-def plotexerciseboundry(var, s, k, t, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varvar=0, adjust_step=False):
+def plotexerciseboundry(vol, s, k, t, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvol=0, adjust_step=False):
     """ Finds and plots the highest/lowest value at which the option will be excercised, for a set of volatilities
     Variables
-        Sames as binomial, the list "var" replaces a single variance float.
+        Sames as binomial, the list "vol" replaces a single volatility float.
     """
 
     # Changes time and periods to allow the tree to
     # expand before the plotting period so we are sure the exercise points are available
-    t = t+1.5
-    dn = round(n*t/(t-1.5))-n
+    t = t+2
+    dn = round(n*t/(t-2))-n
     n += dn
 
     # Calculates the up and down movements, pulls the highest/lowest
     # value for exercise (depending on whether we have a call or a put)
-    for v in var:
-        boundryprice = binomial(s, k, t, v, rf, cp, div=div, am=am, n=n, x=x, b=b, kv=kv, varvar=varvar, adjust_step=adjust_step)["boundryprice"]
-        plt.plot(np.linspace(0,t-1,num=len(boundryprice)-dn-1), boundryprice[dn+1:], label="var= "+str(v))
+    for v in vol:
+        boundryprice = binomial(s, k, t, v, rf, cp, div=div, am=am, n=n, x=x, b=b, kv=kv, volvol=volvol, adjust_step=adjust_step)["boundryprice"]
+        plt.plot(np.linspace(0,t-2,num=len(boundryprice)-dn-1), boundryprice[dn+1:], label="vol= "+str(v))
     plt.legend()
     plt.show()

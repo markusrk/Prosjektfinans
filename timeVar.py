@@ -12,9 +12,9 @@ k = None
 def heston_v2(rand):
     """Generates volatility vector from a string of random numbers (preferably normally distributed)"""
     var = np.zeros(len(rand))
-    var[0] = v
+    var[0] = v**2
     for i in range(1, len(var)):
-        var[i] = var[i - 1] + k * (v - var[i - 1]) * h + volvol * math.sqrt(var[i - 1]) * rand[i] * h
+        var[i] = var[i - 1] + k * (v**2 - var[i - 1]) * h + volvol * math.sqrt(var[i - 1]) * rand[i] * h
         if var[i] <= 0.1:
             n = 2
             while var[i] <= 0.0:
@@ -25,25 +25,25 @@ def heston_v2(rand):
                 for x in range(1,len(tvar)):
                     tvar[x] = tvar[x - 1] + k * (v - tvar[x - 1]) * dh + volvol * math.sqrt(tvar[x - 1]) * rand[x] * dh
                 var[i] = tvar[-1]
-    return var
+    return np.power(var,0.5)
 
 
-def calc_hstep(var):
+def calc_hstep(vol):
     """Returns a vector of time steps that solves the UD=DU equation for a volatility string"""
-    hstep = np.zeros(len(var))
+    hstep = np.zeros(len(vol))
     hstep[0] = h
-    for i in range(1, len(var)):
-        hstep[i] = (var[i - 1] * math.sqrt(hstep[i - 1]) / var[i]) ** 2
+    for i in range(1, len(vol)):
+        hstep[i] = (vol[i - 1] * math.sqrt(hstep[i - 1]) / vol[i]) ** 2
     return hstep
 
-def normalize(var, hstep, time):
+def normalize(vol, hstep, time):
     """Normalizes a time vector to fit the given time period"""
     c_time = sum(hstep)
     c = time/c_time
     hstep *= c
-    return var, hstep
+    return vol, hstep
 
-def gen_hest_var(nt, tt, vt, kt, varvart, norm=True, adjust_step=False):
+def gen_hest_var(nt, tt, vt, kt, volvolt, norm=True, adjust_step=False):
     """Generates volatility and time step vectors
 
     nt : time steps
@@ -55,7 +55,7 @@ def gen_hest_var(nt, tt, vt, kt, varvart, norm=True, adjust_step=False):
 
     """
     # Locking random seed to provide stability during development
-    # np.random.seed(42)
+    #np.random.seed(42)
 
     # Set global variables to input
     global n
@@ -69,7 +69,7 @@ def gen_hest_var(nt, tt, vt, kt, varvart, norm=True, adjust_step=False):
     h = t/n
     v = vt
     k = kt
-    volvol = varvart
+    volvol = volvolt
 
     if adjust_step:
         # Calculates volatility and timestep vectors, is delibarately made too long

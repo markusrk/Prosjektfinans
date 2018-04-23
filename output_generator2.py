@@ -3,48 +3,14 @@ import matplotlib.pyplot as plt
 from timeVar import gen_hest_var
 from binomial import binomial, plotexerciseboundry
 
-"""Answers for problem 2a"""
-# Plot put
-plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500)
-# Plot call
-plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500)
-
-"""Answers for problem 2b"""
-# Print value of option
-print("Value of option: ",
-     binomial(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=500, x=1.5, b=-200)["value"])
-
-"""Answers for problem 2c"""
-# Initialize variables
-steps = 20
-x = np.linspace(80, 160, steps)
-t0 = 1.5 * x - 200
-t0[t0 < 0] = 0
-t03 = np.zeros(steps)
-t06 = np.zeros(steps)
-t1 = np.zeros(steps)
-
-# Calculate payoffs
-for i in range(steps):
-    t03[i] = binomial(s=x[i], k=0, t=0.25, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=200, x=1.5, b=-200)["value"]
-    t06[i] = binomial(s=x[i], k=0, t=1, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=200, x=1.5, b=-200)["value"]
-    t1[i] = binomial(s=x[i], k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07, am=True, n=200, x=1.5, b=-200)["value"]
-
-# Plot payoff values
-plt.plot(x, t03, label="0.25 years")
-plt.plot(x, t06, label="1 year")
-plt.plot(x, t1, label="5 years")
-plt.plot(x, t0, label="Expiration")
-plt.legend()
-plt.show()
 
 """Answer for problem 3a"""
 # Plot put
-plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0, volvol=0.01,
-                    kv=0.2, adjust_step=True)
+#plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0, varvar=0.01,
+ #                   kv=0.2, adjust_step=True)
 # Plot call
-plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500, x=1, b=0, volvol=0.01,
-                    kv=0.2, adjust_step=True)
+#plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500, x=1, b=0, varvar=0.01,
+  #                  kv=0.2, adjust_step=True)
 # Print option value
 r = 0
 n = 20
@@ -62,7 +28,7 @@ res = np.zeros((len(volvol)))
 
 for x in range(len(volvol)):
     res[x] = binomial(s=100.0, k=100.0, t=1, v=0.25, rf=0.02, cp=1, div=0.07,
-                      am=True, n=100, x=1.5, b=-200, volvol=volvol[x], kv=0.8, adjust_step=False)["value"]
+                      am=True, n=100, x=1, b=00, volvol=volvol[x], kv=0.8, adjust_step=True)["value"]
 # Fit regression line
 z = np.polyfit(volvol, res, 1)
 p = np.poly1d(z)
