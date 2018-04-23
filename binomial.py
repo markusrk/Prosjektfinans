@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from timeVol import gen_hest_vol
+from timeVol import gen_hest_var
 
-def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvol=0, adjust_step=False):
+def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varvar=0, adjust_step=False):
     """ Calculates the price of an option using the binomial model
 
     Parameters
@@ -18,7 +18,7 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvo
         x : Multiplier for payoff
         b : constant payoff bonus
         kv : dampening constant for volatility function
-        volvol : volatility of the volatility
+        varvar : variance of the variance
 
     Returns
         value : the value of the option at starting time
@@ -28,10 +28,10 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvo
   """
 
     # Calculate variables for later use
-    vol, h = gen_hest_vol(n,t,v,kv,volvol,norm=True,adjust_step=adjust_step)
+    var, h = gen_hest_var(n, t, v, kv, varvar, norm=True, adjust_step=adjust_step)
     n = len(h)
-    u = np.exp((rf-div)*h +vol * np.sqrt(h))
-    d = np.exp((rf-div)*h-vol * np.sqrt(h))
+    u = np.exp((rf-div)*h +var * np.sqrt(h))
+    d = np.exp((rf-div)*h-var * np.sqrt(h))
     drift = np.exp((rf) * h)
     stkdrift = np.exp((rf-div)*h)
     q = (stkdrift - d) / (u - d)
@@ -39,15 +39,15 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvo
 
 
     # Process the terminal stock price and dividend amounts
-    stkval = np.zeros((n + 1, n + 1))
-    optval = np.zeros((n + 1, n + 1))
+    stock_price = np.zeros((n + 1, n + 1))
+    optionvalues = np.zeros((n + 1, n + 1))
     sellflag = np.zeros((n + 1, n + 1))
     dividend = np.zeros((n + 1, n + 1))
-    stkval[0, 0] = s
+    stock_price[0, 0] = s
     for i in range(1, n + 1):
-        stkval[i, 0] = stkval[i - 1, 0] * u[i-1]
+        stock_price[i, 0] = stock_price[i - 1, 0] * u[i-1]
         for j in range(1, i + 1):
-            stkval[i, j] = stkval[i - 1, j - 1] * d[i-1]
+            stock_price[i, j] = stock_price[i - 1, j - 1] * d[i-1]
 
 
 
@@ -55,16 +55,16 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvo
     # The first for loop sets the option value in the final row, the second for loop fills the rest of the table
     for j in range(n + 1):
         if am:
-            if optval[n, j] < cp * (stkval[n, j]*x+b - k):
+            if optionvalues[n, j] < cp * (stock_price[n, j]*x+b - k):
                 sellflag[i, j] = 1
-        optval[n, j] = max(0, cp * (stkval[n, j]*x+b - k))
+        optionvalues[n, j] = max(0, cp * (stock_price[n, j]*x+b - k))
     for i in range(n - 1, -1, -1):
         for j in range(i + 1):
-            optval[i, j] = (q[i] * optval[i + 1, j] + (1 - q[i]) * optval[i + 1, j + 1]) / drift[i]
+            optionvalues[i, j] = (q[i] * optionvalues[i + 1, j] + (1 - q[i]) * optionvalues[i + 1, j + 1]) / drift[i]
             if am:
-                if optval[i, j] < cp * (stkval[i, j]*x+b - k):
+                if optionvalues[i, j] < cp * (stock_price[i, j]*x+b - k):
                     sellflag[i, j] = 1
-                optval[i, j] = max(optval[i, j], cp * (stkval[i, j]*x+b - k))
+                optionvalues[i, j] = max(optionvalues[i, j], cp * (stock_price[i, j]*x+b - k))
 
 
     # Calculating excercise price
@@ -77,15 +77,15 @@ def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, volvo
     for i in range(len(boundry)):
         boundryprice.append(s * u[1] ** (i - boundry[i]) * d[1] ** (boundry[i]))
 
-    return {"value": optval[0, 0], "sellflag": sellflag, "boundryprice": boundryprice, "h": h}
+    return {"value": optionvalues[0, 0], "sellflag": sellflag, "boundryprice": boundryprice, "h": h}
 
 
 
 
-def plotexerciseboundry(var,s, k, t, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv=0,volvol=0,adjust_step=False):
+def plotexerciseboundry(var, s, k, t, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varvar=0, adjust_step=False):
     """ Finds and plots the highest/lowest value at which the option will be excercised, for a set of volatilities
     Variables
-        Sames as binomial, the list "var" replaces a single volatility float.
+        Sames as binomial, the list "var" replaces a single variance float.
     """
 
     # Changes time and periods to allow the tree to
@@ -97,7 +97,7 @@ def plotexerciseboundry(var,s, k, t, rf, cp, div=0.0, am=False, n=100,x=1,b=0,kv
     # Calculates the up and down movements, pulls the highest/lowest
     # value for exercise (depending on whether we have a call or a put)
     for v in var:
-        boundryprice = binomial(s, k, t, v, rf, cp, div=div, am=am, n=n, x=x, b=b, kv=kv, volvol=volvol, adjust_step=adjust_step)["boundryprice"]
+        boundryprice = binomial(s, k, t, v, rf, cp, div=div, am=am, n=n, x=x, b=b, kv=kv, varvar=varvar, adjust_step=adjust_step)["boundryprice"]
         plt.plot(np.linspace(0,t-1,num=len(boundryprice)-dn-1), boundryprice[dn+1:], label="var= "+str(v))
     plt.legend()
     plt.show()

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from timeVol import gen_hest_vol
+from timeVol import gen_hest_var
 from binomial import binomial, plotexerciseboundry
 
 """Answers for problem 2a"""
@@ -40,10 +40,10 @@ plt.show()
 
 """Answer for problem 3a"""
 # Plot put
-plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0, volvol=0.8,
+plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, -1, div=0.07, am=True, n=500, x=1, b=0, varvar=0.8,
                     kv=0.2, adjust_step=True)
 # Plot call
-plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500, x=1, b=0, volvol=0.8,
+plotexerciseboundry([0.5, 0.25, 0.1], 100.0, 100.0, 5.0, 0.02, 1, div=0.07, am=True, n=500, x=1, b=0, varvar=0.8,
                     kv=0.2, adjust_step=True)
 # Print option value
 r = 0
@@ -51,7 +51,7 @@ n = 20
 res = np.zeros(n)
 for x in range(n):
     res[x] = binomial(s=100.0, k=00.0, t=5.0, v=0.25, rf=0.02, cp=1, div=0.07,
-                      am=True, n=500, x=1.5, b=-200, volvol=0.8, kv=0.2, adjust_step=False)["value"]
+                      am=True, n=500, x=1.5, b=-200, varvar=0.8, kv=0.2, adjust_step=False)["value"]
 print("avg. value: ", sum(res) / len(res))
 print("st.dev: ", np.std(res))
 
@@ -62,7 +62,7 @@ res = np.zeros((len(volvol)))
 
 for x in range(len(volvol)):
     res[x] = binomial(s=100.0, k=100.0, t=1, v=0.25, rf=0.02, cp=1, div=0.07,
-                      am=True, n=100, x=1, b=00, volvol=volvol[x], kv=0.8, adjust_step=True)["value"]
+                      am=True, n=100, x=1, b=00, varvar=volvol[x], kv=0.8, adjust_step=True)["value"]
 # Fit regression line
 z = np.polyfit(volvol, res, 1)
 p = np.poly1d(z)
@@ -86,14 +86,14 @@ k = 0.2
 volvol = 1.1
 
 # generate volatility and step size vectors.
-vol, h = gen_hest_vol(n, t, v, k, volvol, norm=False, adjust_step=False)
+vol, h = gen_hest_var(n, t, v, k, volvol, norm=False, adjust_step=False)
 d = np.zeros(len(h))
 d[0] = h[0]
 for i in range(1, len(d)):
     d[i] = d[i - 1] + h[i]
 
 n = 10000
-vol2, h2 = gen_hest_vol(n, t, v, k, volvol, norm=False, adjust_step=False)
+vol2, h2 = gen_hest_var(n, t, v, k, volvol, norm=False, adjust_step=False)
 d2 = np.zeros(len(h2))
 d2[0] = h2[0]
 for i in range(1, len(d2)):
