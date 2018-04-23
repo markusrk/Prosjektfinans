@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from timeVol import gen_hest_var
+from timeVar import gen_hest_var
 from binomial import binomial, plotexerciseboundry
 
 """Answers for problem 2a"""

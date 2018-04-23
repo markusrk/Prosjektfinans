@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from timeVol import gen_hest_var
+from timeVar import gen_hest_var
 
 def binomial(s, k, t, v, rf, cp, div=0.0, am=False, n=100, x=1, b=0, kv=0, varvar=0, adjust_step=False):
     """ Calculates the price of an option using the binomial model
